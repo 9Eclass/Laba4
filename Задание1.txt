@@ -1,0 +1,267 @@
+С++
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+
+// Функция уравнения: sin(x + 1) - 0.2x = 0
+double f(double x) {
+    return sin(x + 1) - 0.2 * x;
+}
+
+// Производная функции
+double df(double x) {
+    return cos(x + 1) - 0.2;
+}
+
+// Метод половинного деления
+void bisection_method(double a, double b, double epsilon, const string& root_name) {
+    cout << "\nМетод половинного деления для " << root_name << " корня:" << endl;
+    cout << "Интервал: [" << a << ", " << b << "]" << endl;
+    cout << "N\t an\t\t bn\t\t bn - an" << endl;
+    
+    int k = 0;
+    double c;
+    
+    while (fabs(b - a) > epsilon) {
+        c = (a + b) / 2;
+        
+        cout << k << "\t " << fixed << setprecision(6) << a << "\t " 
+             << b << "\t " << fabs(b - a) << endl;
+        
+        if (f(a) * f(c) < 0) {
+            b = c;
+        } else {
+            a = c;
+        }
+        k++;
+    }
+    
+    double root = (a + b) / 2;
+    cout << "\nНайденный " << root_name << " корень: " << root << endl;
+    cout << "Количество итераций: " << k << endl;
+}
+
+// Метод Ньютона
+void newton_method(double x0, double epsilon, const string& root_name) {
+    cout << "\nМетод Ньютона для " << root_name << " корня:" << endl;
+    cout << "Начальное приближение: " << x0 << endl;
+    cout << "N\t Xn\t\t Xn+1\t\t Xn+1 - Xn" << endl;
+    
+    int k = 0;
+    double x1, delta;
+    
+    do {
+        x1 = x0 - f(x0) / df(x0);
+        delta = fabs(x1 - x0);
+        
+        cout << k << "\t " << fixed << setprecision(6) << x0 << "\t " 
+             << x1 << "\t " << delta << endl;
+        
+        x0 = x1;
+        k++;
+    } while (delta > epsilon && k < 1000); 
+    
+    cout << "\nНайденный " << root_name << " корень: " << x1 << endl;
+    cout << "Количество итераций: " << k << endl;
+}
+
+// Метод простых итераций
+void simple_iteration_method(double x0, double epsilon, const string& root_name) {
+    cout << "\nМетод простых итераций для " << root_name << " корня:" << endl;
+    cout << "Начальное приближение: " << x0 << endl;
+    cout << "N\t Xn\t\t Xn+1\t\t Xn+1 - Xn" << endl;
+    
+    auto phi = [root_name](double x) { 
+        if (root_name == "положительного") {
+            return x + 0.5 * (sin(x + 1) - 0.2 * x);  // Для положительного корня
+        } else {
+            return x - 0.5 * (sin(x + 1) - 0.2 * x);  // Для отрицательного корня
+        }
+    };
+    
+    int k = 0;
+    double x1, delta;
+    
+    do {
+        x1 = phi(x0);
+        delta = fabs(x1 - x0);
+        
+        cout << k << "\t " << fixed << setprecision(6) << x0 << "\t " 
+             << x1 << "\t " << delta << endl;
+        
+        x0 = x1;
+        k++;
+    } while (delta > epsilon && k < 1000);
+    
+    cout << "\nНайденный " << root_name << " корень: " << x1 << endl;
+    cout << "Количество итераций: " << k << endl;
+}
+
+int main() {
+    
+    // Точность вычислений
+    double epsilon = 1e-4;
+    
+    cout << "Решение уравнения sin(x + 1) = 0.2x" << endl;
+    cout << "Точность: " << epsilon << endl << endl;
+    
+    // Анализ функции показывает, что есть корни около -1 и 1.5
+    
+    // 1. Отрицательный корень (примерно -1.0)
+    double neg_a = -2.0, neg_b = 0; // Интервал для отрицательного корня
+    double neg_x0 = -1.0; // Начальное приближение для отрицательного корня
+    
+    bisection_method(neg_a, neg_b, epsilon, "отрицательного");
+    newton_method(neg_x0, epsilon, "отрицательного");
+    simple_iteration_method(neg_x0, epsilon, "отрицательного");
+    
+    // 2. Положительный корень 
+    double pos_a = 0, pos_b = 2.0; // Интервал для положительного корня
+    double pos_x0 = 1; // Начальное приближение для положительного корня
+    
+    bisection_method(pos_a, pos_b, epsilon, "положительного");
+    newton_method(pos_x0, epsilon, "положительного");
+    simple_iteration_method(pos_x0, epsilon, "положительного");
+    
+    return 0;
+}
+ 
+ 
+ 
+ 
+ 
+ 
+Go
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+// Функция уравнения: sin(x + 1) - 0.2x = 0
+func f(x float64) float64 {
+	return math.Sin(x+1) - 0.2*x
+}
+
+// Производная функции
+func df(x float64) float64 {
+	return math.Cos(x+1) - 0.2
+}
+
+// Метод половинного деления
+func bisectionMethod(a, b, epsilon float64, rootName string) {
+	fmt.Printf("\nМетод половинного деления для %s корня:\n", rootName)
+	fmt.Printf("Интервал: [%.6f, %.6f]\n", a, b)
+	fmt.Println("N\t an\t\t bn\t\t bn - an")
+
+	k := 0
+	var c float64
+
+	for math.Abs(b-a) > epsilon {
+		c = (a + b) / 2
+
+		fmt.Printf("%d\t %.6f\t %.6f\t %.6f\n", k, a, b, math.Abs(b-a))
+
+		if f(a)*f(c) < 0 {
+			b = c
+		} else {
+			a = c
+		}
+		k++
+	}
+
+	root := (a + b) / 2
+	fmt.Printf("\nНайденный %s корень: %.6f\n", rootName, root)
+	fmt.Printf("Количество итераций: %d\n", k)
+}
+
+// Метод Ньютона
+func newtonMethod(x0, epsilon float64, rootName string) {
+	fmt.Printf("\nМетод Ньютона для %s корня:\n", rootName)
+	fmt.Printf("Начальное приближение: %.6f\n", x0)
+	fmt.Println("N\t Xn\t\t Xn+1\t\t Xn+1 - Xn")
+
+	k := 0
+	var x1, delta float64
+
+	for {
+		x1 = x0 - f(x0)/df(x0)
+		delta = math.Abs(x1 - x0)
+
+		fmt.Printf("%d\t %.6f\t %.6f\t %.6f\n", k, x0, x1, delta)
+
+		x0 = x1
+		k++
+
+		if delta <= epsilon || k >= 1000 {
+			break
+		}
+	}
+
+	fmt.Printf("\nНайденный %s корень: %.6f\n", rootName, x1)
+	fmt.Printf("Количество итераций: %d\n", k)
+}
+
+// Метод простых итераций
+func simpleIterationMethod(x0, epsilon float64, rootName string) {
+	fmt.Printf("\nМетод простых итераций для %s корня:\n", rootName)
+	fmt.Printf("Начальное приближение: %.6f\n", x0)
+	fmt.Println("N\t Xn\t\t Xn+1\t\t Xn+1 - Xn")
+
+	phi := func(x float64) float64 {
+		if rootName == "положительного" {
+			return x + 0.5*(math.Sin(x+1)-0.2*x) // Для положительного корня
+		} else {
+			return x - 0.5*(math.Sin(x+1)-0.2*x) // Для отрицательного корня
+		}
+	}
+
+	k := 0
+	var x1, delta float64
+
+	for {
+		x1 = phi(x0)
+		delta = math.Abs(x1 - x0)
+
+		fmt.Printf("%d\t %.6f\t %.6f\t %.6f\n", k, x0, x1, delta)
+
+		x0 = x1
+		k++
+
+		if delta <= epsilon || k >= 1000 {
+			break
+		}
+	}
+
+	fmt.Printf("\nНайденный %s корень: %.6f\n", rootName, x1)
+	fmt.Printf("Количество итераций: %d\n", k)
+}
+
+func main() {
+	// Точность вычислений
+	epsilon := 1e-4
+
+	fmt.Println("Решение уравнения sin(x + 1) = 0.2x")
+	fmt.Printf("Точность: %.0e\n\n", epsilon)
+
+	// 1. Отрицательный корень (примерно -1.0)
+	negA, negB := -2.0, 0.0 // Интервал для отрицательного корня
+	negX0 := -1.0            // Начальное приближение для отрицательного корня
+
+	bisectionMethod(negA, negB, epsilon, "отрицательного")
+	newtonMethod(negX0, epsilon, "отрицательного")
+	simpleIterationMethod(negX0, epsilon, "отрицательного")
+
+	// 2. Положительный корень (примерно 1.5)
+	posA, posB := 0.0, 2.0 // Интервал для положительного корня
+	posX0 := 1.0           // Начальное приближение для положительного корня
+
+	bisectionMethod(posA, posB, epsilon, "положительного")
+	newtonMethod(posX0, epsilon, "положительного")
+	simpleIterationMethod(posX0, epsilon, "положительного")
+}
+

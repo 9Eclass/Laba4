@@ -1,0 +1,247 @@
+С++
+#include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <sstream>
+
+using namespace std;
+
+vector<string> split(const string &s) {
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(s);
+    while (tokenStream >> token) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+string bordaWinner(const vector<vector<string>>& votes) {
+    map<string, int> scores;
+    int numCandidates = votes[0].size();
+    
+    for (const auto& vote : votes) {
+        for (int i = 0; i < vote.size(); i++) {
+            scores[vote[i]] += (numCandidates - 1 - i);
+        }
+    }
+    
+    return max_element(scores.begin(), scores.end(), 
+        [](const pair<string, int>& a, const pair<string, int>& b) {
+            return a.second < b.second;
+        })->first;
+}
+
+string condorcetWinner(const vector<vector<string>>& votes) {
+    vector<string> candidates = votes[0];
+    map<string, map<string, int>> pairwise;
+    
+    for (const auto& c1 : candidates) {
+        for (const auto& c2 : candidates) {
+            if (c1 != c2) {
+                pairwise[c1][c2] = 0;
+            }
+        }
+    }
+    
+    for (const auto& vote : votes) {
+        for (int i = 0; i < vote.size(); i++) {
+            for (int j = i + 1; j < vote.size(); j++) {
+                string preferred = vote[i];
+                string lessPreferred = vote[j];
+                pairwise[preferred][lessPreferred]++;
+            }
+        }
+    }
+    
+    for (const auto& c1 : candidates) {
+        bool isCondorcetWinner = true;
+        for (const auto& c2 : candidates) {
+            if (c1 != c2 && pairwise[c1][c2] <= pairwise[c2][c1]) {
+                isCondorcetWinner = false;
+                break;
+            }
+        }
+        if (isCondorcetWinner) {
+            return c1;
+        }
+    }
+    
+    return "Нет победителя по Кондорсе";
+}
+
+int main() {
+    int numVoters, numCandidates;
+    vector<vector<string>> votes;
+    
+    cout << "Введите количество кандидатов: ";
+    cin >> numCandidates;
+    cin.ignore(); // очистка буфера
+    
+    cout << "Введите имена кандидатов через пробелы: ";
+    string candidatesLine;
+    getline(cin, candidatesLine);
+    vector<string> candidates = split(candidatesLine);
+    
+    if (candidates.size() != numCandidates) {
+        cout << "Ошибка: Количество кандидатов не соответствует введенным данным" << endl;
+        return 1;
+    }
+    
+    cout << "Введите количество голосов: ";
+    cin >> numVoters;
+    cin.ignore();
+    
+    for (int i = 0; i < numVoters; i++) {
+        cout << "Введите голос #" << i+1 << " (Введите имена кандидатов в строку, через пробелы): ";
+        string voteLine;
+        getline(cin, voteLine);
+        vector<string> vote = split(voteLine);
+        
+        if (vote.size() != numCandidates) {
+            cout << "Ошибка: Неверное количество кандидатов в голосовании!" << endl;
+            return 1;
+        }
+        
+        votes.push_back(vote);
+    }
+    
+    string bordaW = bordaWinner(votes);
+    string condorcetW = condorcetWinner(votes);
+    
+    cout << "\nПобедитель по Борда: " << bordaW << endl;
+    cout << "Победитель по Кондорсе: " << condorcetW << endl;
+    
+    return 0;
+}
+ 
+Go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+// Функция для разделения строки на токены
+func split(s string) []string {
+	return strings.Fields(s)
+}
+
+// Функция для нахождения победителя по методу Бора
+func bordaWinner(votes [][]string) string {
+	scores := make(map[string]int)
+	numCandidates := len(votes[0])
+
+	for _, vote := range votes {
+		for i, candidate := range vote {
+			scores[candidate] += numCandidates - 1 - i
+		}
+	}
+
+	var winner string
+	maxScore := -1
+	for candidate, score := range scores {
+		if score > maxScore {
+			maxScore = score
+			winner = candidate
+		}
+	}
+	return winner
+}
+
+// Функция для нахождения победителя по методу Кондорсе
+func condorcetWinner(votes [][]string) string {
+	candidates := votes[0]
+	pairwise := make(map[string]map[string]int)
+
+	for _, c1 := range candidates {
+		pairwise[c1] = make(map[string]int)
+		for _, c2 := range candidates {
+			if c1 != c2 {
+				pairwise[c1][c2] = 0
+			}
+		}
+	}
+
+	for _, vote := range votes {
+		for i := 0; i < len(vote); i++ {
+			for j := i + 1; j < len(vote); j++ {
+				preferred := vote[i]
+				lessPreferred := vote[j]
+				pairwise[preferred][lessPreferred]++
+			}
+		}
+	}
+
+	for _, c1 := range candidates {
+		isCondorcetWinner := true
+		for _, c2 := range candidates {
+			if c1 != c2 && pairwise[c1][c2] <= pairwise[c2][c1] {
+				isCondorcetWinner = false
+				break
+			}
+		}
+		if isCondorcetWinner {
+			return c1
+		}
+	}
+	return "Нет победителя по Кондорсе"
+}
+
+func main() {
+	reader := bufio.NewReader(os.Stdin)
+
+	var numCandidates int
+	fmt.Print("Введите количество кандидатов: ")
+	_, err := fmt.Scan(&numCandidates)
+	if err != nil {
+		fmt.Println("Ошибка при вводе количества кандидатов:", err)
+		return
+	}
+
+	fmt.Print("Введите имена кандидатов через пробелы: ")
+	candidatesLine, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Println("Ошибка при вводе кандидатов:", err)
+		return
+	}
+	candidatesLine = strings.TrimSpace(candidatesLine)
+	candidates := split(candidatesLine)
+
+	if len(candidates) != numCandidates {
+		fmt.Println("Ошибка: Количество кандидатов не соответствует введенным данным")
+		return
+	}
+
+	var numVoters int
+	fmt.Print("Введите количество голосов: ")
+	_, err = fmt.Scan(&numVoters)
+	if err != nil {
+		fmt.Println("Ошибка при вводе количества голосов:", err)
+		return
+	}
+
+	votes := make([][]string, numVoters)
+	for i := 0; i < numVoters; i++ {
+		fmt.Printf("Введите голос #%d (Введите имена кандидатов в строку, через пробелы): ", i+1)
+		voteLine, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Ошибка при вводе голоса:", err)
+			return
+		}
+		voteLine = strings.TrimSpace(voteLine)
+		vote := split(voteLine)
+		if len(vote) != numCandidates {
+			fmt.Println("Ошибка: Количество кандидатов в голосе не соответствует количеству кандидатов")
+			return
+		}
+		votes[i] = vote
+	}
+
+	fmt.Println("Победитель по методу Бора:", bordaWinner(votes))
+	fmt.Println("Победитель по методу Кондорсе:", condorcetWinner(votes))
+}

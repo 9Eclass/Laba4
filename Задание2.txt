@@ -1,0 +1,315 @@
+С++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <ctime>
+#include <numeric>
+#include <cmath>
+
+using namespace std;
+
+// Функция для генерации случайных чисел в диапазоне [min, max]
+int random_int(int min, int max, mt19937& gen) {
+    uniform_int_distribution<> dist(min, max);
+    return dist(gen);
+}
+
+// Функция для вывода массива
+void print_array(const vector<int>& arr) {
+    for (int num : arr) {
+        cout << num << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    // Инициализация генератора случайных чисел
+    random_device rd;
+    mt19937 gen(rd());
+    
+    // 1. Создание массива из n чисел (n ≥ 10) в диапазоне [150, 300]
+    int n = random_int(10, 20, gen); // Выбираем случайный размер от 10 до 20
+    vector<int> arr(n);
+    for (int i = 0; i < n; ++i) {
+        arr[i] = random_int(150, 300, gen);
+    }
+    
+    cout << "1. Исходный массив (" << n << " элементов):" << endl;
+    print_array(arr);
+    
+    // 2. Найти самую длинную последовательность чисел, упорядоченную по убыванию
+    vector<int> longest_decreasing;
+    vector<int> current_seq;
+    
+    for (int i = 0; i < n; ++i) {
+        if (current_seq.empty() || arr[i] < current_seq.back()) {
+            current_seq.push_back(arr[i]);
+        } else {
+            if (current_seq.size() > longest_decreasing.size()) {
+                longest_decreasing = current_seq;
+            }
+            current_seq.clear();
+            current_seq.push_back(arr[i]);
+        }
+    }
+    
+    // Проверяем последнюю последовательность
+    if (current_seq.size() > longest_decreasing.size()) {
+        longest_decreasing = current_seq;
+    }
+    
+    cout << "\n2. Самая длинная убывающая последовательность (" 
+         << longest_decreasing.size() << " элементов):" << endl;
+    print_array(longest_decreasing);
+    
+    // 3. Создать новый массив из чисел, меньших среднеарифметического значения
+    double average = accumulate(arr.begin(), arr.end(), 0.0) / arr.size();
+    vector<int> below_average;
+    
+    for (int num : arr) {
+        if (num < average) {
+            below_average.push_back(num);
+        }
+    }
+    
+    cout << "\n3. Среднее арифметическое: " << average << endl;
+    cout << "Элементы ниже среднего (" << below_average.size() << " элементов):" << endl;
+    print_array(below_average);
+    
+    // 4. Модификация массива случайных символов
+int m = random_int(5, 15, gen); // Размер массива символов от 5 до 15
+vector<char> char_arr(m);
+
+// Заполняем массив случайными символами (буквы и цифры)
+for (int i = 0; i < m; ++i) {
+    // Выбираем случайно букву (A-Z, a-z) или цифру (0-9)
+    int choice = random_int(0, 2, gen);
+    if (choice == 0) {
+        char_arr[i] = random_int('A', 'Z', gen);
+    } else if (choice == 1) {
+        char_arr[i] = random_int('a', 'z', gen);
+    } else {
+        char_arr[i] = random_int('0', '9', gen);
+    }
+}
+
+cout << "\n4. Исходный массив символов (" << m << " элементов):" << endl;
+for (char c : char_arr) cout << c << " ";
+cout << endl;
+
+// Модификация массива: циклический сдвиг на 2 элемента влево
+if (m > 2) { // Проверяем, что массив содержит более 2 элементов
+    char first1 = char_arr[0]; // Сохраняем первый элемент
+    char first2 = char_arr[1]; // Сохраняем второй элемент
+
+    for (int i = 0; i < m - 2; ++i) {
+        char_arr[i] = char_arr[i + 2]; // Сдвигаем элементы влево
+    }
+
+    char_arr[m - 2] = first1; // Помещаем первый элемент на место предпоследнего
+    char_arr[m - 1] = first2; // Помещаем второй элемент на последнее место
+} else if (m == 2) { // Если в массиве ровно 2 элемента, просто поменяем их местами
+    swap(char_arr[0], char_arr[1]);
+} // Если в массиве меньше 2 элементов, ничего не делаем
+
+cout << "Модифицированный массив символов:" << endl;
+for (char c : char_arr) cout << c << " ";
+cout << endl;
+    
+    // 5. Работа с массивом чисел [100, 900]
+    int p = random_int(10, 20, gen); // Размер массива от 10 до 20
+    vector<int> num_arr(p);
+    for (int i = 0; i < p; ++i) {
+        num_arr[i] = random_int(100, 900, gen);
+    }
+    
+    cout << "\n5. Исходный массив чисел (" << p << " элементов):" << endl;
+    print_array(num_arr);
+    
+    // Сортировка по убыванию
+    sort(num_arr.begin(), num_arr.end(), greater<int>());
+    cout << "Отсортированный по убыванию:" << endl;
+    print_array(num_arr);
+    
+    // Подсчет цифр в элементах массива
+    vector<int> digit_counts(10, 0); // Индекс - цифра, значение - количество
+    
+    for (int num : num_arr) {
+        int n = num;
+        while (n > 0) {
+            int digit = n % 10;
+            digit_counts[digit]++;
+            n /= 10;
+        }
+    }
+    
+    cout << "Количество цифр в элементах массива:" << endl;
+    for (int i = 0; i < 10; ++i) {
+        cout << i << ": " << digit_counts[i] << " раз" << endl;
+    }
+    
+    return 0;
+}
+ 
+ 
+ 
+Go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sort"
+	"strings"
+	"time"
+)
+
+// Функция для генерации случайных чисел в диапазоне [min, max]
+func randomInt(min, max int) int {
+	return rand.Intn(max-min+1) + min
+}
+
+// Функция для вывода массива
+func printArray(arr []int) {
+	fmt.Println(strings.Trim(fmt.Sprint(arr), "[]"))
+}
+
+func main() {
+	// Инициализация генератора случайных чисел
+	rand.Seed(time.Now().UnixNano())
+
+	// 1. Создание массива из n чисел (n ≥ 10) в диапазоне [150, 300]
+	n := randomInt(10, 20) // Выбираем случайный размер от 10 до 20
+	arr := make([]int, n)
+	for i := 0; i < n; i++ {
+		arr[i] = randomInt(150, 300)
+	}
+
+	fmt.Printf("1. Исходный массив (%d элементов):\n", n)
+	printArray(arr)
+
+	// 2. Найти самую длинную последовательность чисел, упорядоченную по убыванию
+	var longestDecreasing []int
+	var currentSeq []int
+
+	for i := 0; i < n; i++ {
+		if len(currentSeq) == 0 || arr[i] < currentSeq[len(currentSeq)-1] {
+			currentSeq = append(currentSeq, arr[i])
+		} else {
+			if len(currentSeq) > len(longestDecreasing) {
+				longestDecreasing = make([]int, len(currentSeq))
+				copy(longestDecreasing, currentSeq)
+			}
+			currentSeq = []int{arr[i]}
+		}
+	}
+
+	// Проверяем последнюю последовательность
+	if len(currentSeq) > len(longestDecreasing) {
+		longestDecreasing = make([]int, len(currentSeq))
+		copy(longestDecreasing, currentSeq)
+	}
+
+	fmt.Printf("\n2. Самая длинная убывающая последовательность (%d элементов):\n", len(longestDecreasing))
+	printArray(longestDecreasing)
+
+	// 3. Создать новый массив из чисел, меньших среднеарифметического значения
+	sum := 0
+	for _, num := range arr {
+		sum += num
+	}
+	average := float64(sum) / float64(len(arr))
+
+	var belowAverage []int
+	for _, num := range arr {
+		if float64(num) < average {
+			belowAverage = append(belowAverage, num)
+		}
+	}
+
+	fmt.Printf("\n3. Среднее арифметическое: %.2f\n", average)
+	fmt.Printf("Элементы ниже среднего (%d элементов):\n", len(belowAverage))
+	printArray(belowAverage)
+
+	// 4. Модификация массива случайных символов
+m := randomInt(5, 15) // Размер массива символов от 5 до 15
+charArr := make([]rune, m)
+
+// Заполняем массив случайными символами (буквы и цифры)
+for i := 0; i < m; i++ {
+	// Выбираем случайно букву (A-Z, a-z) или цифру (0-9)
+	choice := randomInt(0, 2)
+	switch choice {
+	case 0:
+		charArr[i] = rune(randomInt('A', 'Z'))
+	case 1:
+		charArr[i] = rune(randomInt('a', 'z'))
+	case 2:
+		charArr[i] = rune(randomInt('0', '9'))
+	}
+}
+
+fmt.Printf("\n4. Исходный массив символов (%d элементов):\n", m)
+for _, c := range charArr {
+	fmt.Printf("%c ", c)
+}
+fmt.Println()
+
+// Модификация массива: циклический сдвиг на 2 элемента влево
+if len(charArr) > 2 { // Проверяем, что массив содержит более 2 элементов
+	first1 := charArr[0] // Сохраняем первый элемент
+	first2 := charArr[1] // Сохраняем второй элемент
+
+	for i := 0; i < len(charArr)-2; i++ {
+		charArr[i] = charArr[i+2] // Сдвигаем элементы влево
+	}
+
+	charArr[len(charArr)-2] = first1 // Помещаем первый элемент на место предпоследнего
+	charArr[len(charArr)-1] = first2 // Помещаем второй элемент на последнее место
+} else if len(charArr) == 2 { // Если в массиве ровно 2 элемента, просто поменяем их местами
+	charArr[0], charArr[1] = charArr[1], charArr[0]
+} // Если в массиве меньше 2 элементов, ничего не делаем
+
+fmt.Println("Модифицированный массив символов:")
+for _, c := range charArr {
+	fmt.Printf("%c ", c)
+}
+fmt.Println()
+
+	// 5. Работа с массивом чисел [100, 900]
+	p := randomInt(10, 20) // Размер массива от 10 до 20
+	numArr := make([]int, p)
+	for i := 0; i < p; i++ {
+		numArr[i] = randomInt(100, 900)
+	}
+
+	fmt.Printf("\n5. Исходный массив чисел (%d элементов):\n", p)
+	printArray(numArr)
+
+	// Сортировка по убыванию
+	sort.Slice(numArr, func(i, j int) bool {
+		return numArr[i] > numArr[j]
+	})
+	fmt.Println("Отсортированный по убыванию:")
+	printArray(numArr)
+
+	// Подсчет цифр в элементах массива
+	digitCounts := make(map[int]int)
+
+	for _, num := range numArr {
+		n := num
+		for n > 0 {
+			digit := n % 10
+			digitCounts[digit]++
+			n /= 10
+		}
+	}
+
+	fmt.Println("Количество цифр в элементах массива:")
+	for digit := 0; digit <= 9; digit++ {
+		count := digitCounts[digit]
+		fmt.Printf("%d: %d раз\n", digit, count)
+	}
+}
+

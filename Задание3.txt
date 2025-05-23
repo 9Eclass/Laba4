@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <bitset>
+
+using namespace std;
+
+vector<int> generate_sequence(int j, int k, int m, const vector<int>& initial, int count, char op) {
+    vector<int> sequence = initial;
+    
+    for (int n = initial.size(); n < count; ++n) {
+        int sn_j = sequence[n - j];
+        int sn_k = sequence[n - k];
+        int next_val;
+        
+        switch(op) {
+            case '+':
+                next_val = (sn_j + sn_k) % m;
+                break;
+            case '-':
+                next_val = (sn_j - sn_k + m) % m; // +m для избежания отрицательных чисел
+                break;
+            case '*':
+                next_val = (sn_j * sn_k) % m;
+                break;
+            case 'x':
+                next_val = (sn_j ^ sn_k) % m;
+                break;
+            default:
+                next_val = (sn_j + sn_k) % m;
+        }
+        
+        sequence.push_back(next_val);
+    }
+    
+    return sequence;
+}
+
+int main() {
+    // Параметры из примера
+    int j, k, m;
+    vector<int> initial;
+    int count; 
+    char op; 
+    vector<int> sequence;
+    
+    cout << "Введите j (0 < j < k): ";
+    cin >> j;
+    cout << "Введите k (k > j): ";
+    cin >> k;
+    cout << "Введите m (рекомендуется степень 2): ";
+    cin >> m;
+        
+    initial.resize(max(j, k));
+    cout << "Введите " << initial.size() << " начальных значений:\n";
+    for (int i = 0; i < initial.size(); ++i) {
+        cout << "S" << i << ": ";
+        cin >> initial[i];
+        }
+        
+        cout << "Выберите операцию (+, -, *, x): ";
+        cin >> op;
+        
+        cout << "Сколько элементов сгенерировать? ";
+        cin >> count;
+        
+        sequence = generate_sequence(j, k, m, initial, count, op);
+        
+        cout << "\nРезультат:\n";
+        for (int i = 0; i < sequence.size(); ++i) {
+            cout << "S" << i << ": " << sequence[i];
+            if (op == 'x') {
+                cout << " (bin: " << bitset<8>(sequence[i]) << ")";
+            }
+            cout << endl;
+        }
+        return 0;
+    }
+
